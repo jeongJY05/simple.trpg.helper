@@ -83,7 +83,7 @@
 
             let output = resultText.split(/([!?,.])/).map((part, index) => {
                 if (punctuations.includes(part.trim())) {
-                    return part.trim() + '<br>/desc';
+                    return part.trim() + '<br>/desc ';
                 }
                 return part;
             }).join('').trim();
@@ -96,13 +96,13 @@
                 if(checkKpcSuffix) { //조사를 변환 있음
                    const hasFinalLetter = hasFinalConsonant(kpcName);
                    let kpcSuffix1 = hasFinalLetter ? '이' : '가';
-                   output = output.replace(/KPC가/g, kpcName + kpcSuffix1);
+                   output = output.replace(/(KPC|kpc)가/g, kpcName + kpcSuffix1);
                    let kpcSuffix2 = hasFinalLetter ? '은' : '는';
-                   output = output.replace(/KPC는/g, kpcName + kpcSuffix2);
+                   output = output.replace(/(KPC|kpc)는/g, kpcName + kpcSuffix2);
                    let kpcSuffix3 = hasFinalLetter ? '을' : '를';
-                   output = output.replace(/KPC를/g, kpcName + kpcSuffix3);
+                   output = output.replace(/(KPC|kpc)를/g, kpcName + kpcSuffix3);
                 } else{ // 조사 변환 없음
-                   output = output.replace(/KPC/g, kpcName);                  
+                   output = output.replace(/(KPC|kpc)/g, kpcName);                  
                 }               
             }
 
@@ -110,13 +110,13 @@
                 if(checkPcSuffix) { //조사를 변환 있음
                    const hasFinalLetter = hasFinalConsonant(pcName);
                    let pcSuffix1 = hasFinalLetter ? '이' : '가';
-                   output = output.replace(/PC가/g, pcName + pcSuffix1);
+                   output = output.replace((/(PC|pc|탐사자)가/g, pcName + pcSuffix1);
                    let pcSuffix2 = hasFinalLetter ? '은' : '는';
-                   output = output.replace(/PC는/g, pcName + pcSuffix2);
+                   output = output.replace(/(PC|pc|탐사자)는/g, pcName + pcSuffix2);
                    let pcSuffix3 = hasFinalLetter ? '을' : '를';
-                   output = output.replace(/PC를/g, pcName + pcSuffix3);
+                   output = output.replace(/(PC|pc|탐사자)를/g, pcName + pcSuffix3);
                 } else{ // 조사 변환 없음
-                   output = output.replace(/PC/g, pcName);                  
+                   output = output.replace(/(PC|pc|탐사자)/g, pcName);  
                 }                  
             }
 
