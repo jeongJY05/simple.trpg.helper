@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문장 변환기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label {
+            margin-right: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .output {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>문장 변환기</h1>
+
+    <div>
+        <label for="inputText">입력 문장:</label>
+        <textarea id="inputText"></textarea>
+    </div>
+
+    <div>
+        <h3>문장부호 개행 설정</h3>
+        <label><input type="checkbox" id="checkExclamation"> ! (느낌표)</label>
+        <label><input type="checkbox" id="checkComma"> , (쉼표)</label>
+        <label><input type="checkbox" id="checkQuestion"> ? (물음표)</label>
+        <label><input type="checkbox" id="checkPeriod"> . (마침표)</label>
+    </div>
+
+    <div>
+        <h3>이름 변환 설정</h3>
+        <label for="kpcName">KPC 이름:</label>
+        <input type="text" id="kpcName">
+        <label for="pcName">PC 이름:</label>
+        <input type="text" id="pcName">
+    </div>
+
+    <div>
+        <h3>조사 변환 설정</h3>
+        <label><input type="checkbox" id="checkKpcSuffix"> KPC 이름에 조사 변환</label>
+        <label><input type="checkbox" id="checkPcSuffix"> PC 이름에 조사 변환</label>
+    </div>
+
+    <button onclick="transformText()">바꾸기</button>
+
+    <p class="output" id="output"></p>
+
+    <script>
+      function transformText() {
+            const inputText = document.getElementById('inputText').value;
+            const exclamation = document.getElementById('checkExclamation').checked;
+            const comma = document.getElementById('checkComma').checked;
+            const question = document.getElementById('checkQuestion').checked;
+            const period = document.getElementById('checkPeriod').checked;
+            const kpcName = document.getElementById('kpcName').value;
+            const pcName = document.getElementById('pcName').value;
+            const checkKpcSuffix = document.getElementById('checkKpcSuffix').checked;
+            const checkPcSuffix = document.getElementById('checkPcSuffix').checked;
+
+            let resultText = inputText;
+
+            // 문장부호 개행 처리
+            let punctuations = [];
+            if (exclamation) punctuations.push('!');
+            if (comma) punctuations.push(',');
+            if (question) punctuations.push('?');
+            if (period) punctuations.push('.');
+
+            let output = resultText.split(/([!?,.])/).map((part, index) => {
+                if (punctuations.includes(part.trim())) {
+                    return part.trim() + '<br>/desc';
+                }
+                return part;
+            }).join('').trim();
+        
+            // 첫줄 desc추가
+            output = '/desc' + output
+
+            // KPC, PC 이름 변환
+            if (kpcName) {
+                if(checkKpcSuffix) { //조사를 변환 있음
+                   const hasFinalLetter = hasFinalConsonant(kpcName);
+                   let kpcSuffix1 = hasFinalLetter ? '이' : '가';
+                   output = output.replace(/KPC가/g, kpcName + kpcSuffix1);
+                   let kpcSuffix2 = hasFinalLetter ? '은' : '는';
+                   output = output.replace(/KPC는/g, kpcName + kpcSuffix2);
+                   let kpcSuffix3 = hasFinalLetter ? '을' : '를';
+                   output = output.replace(/KPC를/g, kpcName + kpcSuffix3);
+                } else{ // 조사 변환 없음
+                   output = output.replace(/KPC/g, kpcName);                  
+                }               
+            }
+
+            if (pcName) {
+                if(checkPcSuffix) { //조사를 변환 있음
+                   const hasFinalLetter = hasFinalConsonant(pcName);
+                   let pcSuffix1 = hasFinalLetter ? '이' : '가';
+                   output = output.replace(/PC가/g, pcName + pcSuffix1);
+                   let pcSuffix2 = hasFinalLetter ? '은' : '는';
+                   output = output.replace(/PC는/g, pcName + pcSuffix2);
+                   let pcSuffix3 = hasFinalLetter ? '을' : '를';
+                   output = output.replace(/PC를/g, pcName + pcSuffix3);
+                } else{ // 조사 변환 없음
+                   output = output.replace(/PC/g, pcName);                  
+                }                  
+            }
+
+            document.getElementById('output').innerHTML = output;
+        }
+      
+      function hasFinalConsonant(word) {
+        // 한글 음절의 유니코드 범위: 가(0xAC00) ~ 힣(0xD7A3)
+        const lastChar = word[word.length - 1]; // 마지막 문자
+        const unicode = lastChar.charCodeAt(0); // 유니코드 값 가져오기
+
+        // 한글 음절의 유니코드 범위 체크
+        if (unicode < 0xAC00 || unicode > 0xD7A3) {
+            return false; // 한글 음절이 아닐 경우 false 반환
+        }
+
+        // 종성 여부 확인
+        const finalConsonant = (unicode - 0xAC00) % 28; // 유니코드 값에서 종성 부분 계산
+
+        // 종성이 0이면 받침이 없는 음절, 1 이상이면 받침이 있음
+        return finalConsonant !== 0;
+    }
+    </script>
+</body>
+</html>
