@@ -33,7 +33,10 @@
         <label for="inputText">입력 문장:</label>
         <textarea id="inputText"></textarea>
     </div>
-
+    <div>
+        <h3>문단으로 합침 설정</h3>
+        <label><input type="checkbox" id="checkOnePhara"> 한 문단으로 합치기 </label>
+    </div>
     <div>
         <h3>문장부호 개행 설정</h3>
         <label><input type="checkbox" id="checkExclamation"> ! (느낌표)</label>
@@ -56,10 +59,20 @@
         <label><input type="checkbox" id="checkPcSuffix"> PC 이름에 조사 변환</label>
     </div>
 
-    <button onclick="transformText()">바꾸기</button>    
+    <button type="button" onclick="transformText()">바꾸기</button>    
     <p class="output" id="output"></p>
 
     <script>
+      // 문단합침에 체크를 넣을 경우 문장부호들을 체크해제해줌.
+      document.getElementById('checkOnePhara').addEventListener('change', function() {
+        if (this.checked) {
+            const exclamation = document.getElementById('checkExclamation').checked = false;
+            const comma = document.getElementById('checkComma').checked = false;
+            const question = document.getElementById('checkQuestion').checked = false;
+            const period = document.getElementById('checkPeriod').checked = false;
+        }
+      });        
+
       function transformText() {
             const inputText = document.getElementById('inputText').value;
             const exclamation = document.getElementById('checkExclamation').checked;
@@ -70,22 +83,30 @@
             const pcName = document.getElementById('pcName').value;
             const checkKpcSuffix = document.getElementById('checkKpcSuffix').checked;
             const checkPcSuffix = document.getElementById('checkPcSuffix').checked;
+            const checkOnePhara = document.getElementById('checkOnePhara').checked;
 
-            let resultText = inputText;
+            let output = inputText;
 
-            // 문장부호 개행 처리
-            let punctuations = [];
-            if (exclamation) punctuations.push('!');
-            if (comma) punctuations.push(',');
-            if (question) punctuations.push('?');
-            if (period) punctuations.push('.');
+            // 한 문단으로 합치기
+            if(checkOnePhara) {
+                output = output.replace(/[\r\n]+/g, '');
+                document.getElementById('checkKpcSuffix')
+            } else {
+                // 문장부호 개행 처리
+                let punctuations = [];
+                if (exclamation) punctuations.push('!');
+                if (comma) punctuations.push(',');
+                if (question) punctuations.push('?');
+                if (period) punctuations.push('.');
+    
+                output = output.split(/([!?,.])/).map((part, index) => {
+                    if (punctuations.includes(part.trim())) {
+                        return part.trim() + '<br>/desc ';
+                    }
+                    return part;
+                }).join('').trim();
+            }
 
-            let output = resultText.split(/([!?,.])/).map((part, index) => {
-                if (punctuations.includes(part.trim())) {
-                    return part.trim() + '<br>/desc ';
-                }
-                return part;
-            }).join('').trim();
         
             // 첫줄 desc추가
             output = '/desc ' + output
