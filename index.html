@@ -24,7 +24,14 @@
             padding: 10px;
             border-radius: 5px;
         }
-        #translate {  background-color: crimson;  color: white;  border: none; padding: 10px 30px;}
+        .buttonBox {
+            display: flex; 
+            justify-content: flex-end;
+        }
+        button {
+            margin-left: auto;
+        }
+        #translate {  background-color: black;  color: white;  border: none; padding: 10px 30px;}
         #copy {  background-color: green;  color: white;  border: none; padding: 5px 10px;}
     </style>
 </head>
@@ -62,10 +69,16 @@
         <label><input type="checkbox" id="checkKpcSuffix"> KPC 이름에 조사 변환</label>
         <label><input type="checkbox" id="checkPcSuffix"> PC 이름에 조사 변환</label>
     </div>
-
-    <button type="button" id="translate" onclick="transformText()">바꾸기</button>    
+    <br>
+    <br>
+    <br>
+    <div style="display: flex; justify-content: flex-end;">
+      <button type="button" id="translate" onclick="transformText()">바꾸기</button>    
+    </div>
     <p class="output" id="output"></p>
-    <button type="button" id="copy" onclick="copy()">복사하기</button>
+    <div class="buttonBox">
+      <button type="button" id="copy" onclick="copy()">복사하기</button>
+    </div>
 
     <script>
       // 이벤트 등록 함수
