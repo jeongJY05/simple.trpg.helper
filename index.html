@@ -75,6 +75,7 @@
 
       function transformText() {
             const inputText = document.getElementById('inputText').value;
+            const formatted = inputText.replace(/\n/g, '<br>');
             const exclamation = document.getElementById('checkExclamation').checked;
             const comma = document.getElementById('checkComma').checked;
             const question = document.getElementById('checkQuestion').checked;
@@ -85,7 +86,7 @@
             const checkPcSuffix = document.getElementById('checkPcSuffix').checked;
             const checkOnePhara = document.getElementById('checkOnePhara').checked;
 
-            let output = inputText;
+            let output = formatted;
 
             // 한 문단으로 합치기
             if(checkOnePhara) {
@@ -101,15 +102,16 @@
     
                 output = output.split(/([!?,.])/).map((part, index) => {
                     if (punctuations.includes(part.trim())) {
-                        return part.trim() + '<br>/desc ';
+                        return part.trim() + '<br> ';
                     }
                     return part;
                 }).join('').trim();
             }
 
-        
-            // 첫줄 desc추가
-            output = '/desc ' + output
+            //desc 붙이기
+            const lines = output.split('<br>');
+            const descLines = lines.map(line => line.trim() ? '/desc ' + line.trim() : '').filter(Boolean);
+            output = descLines.join('<br>');        
 
             // KPC, PC 이름 변환
             if (kpcName) {
