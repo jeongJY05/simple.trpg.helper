@@ -61,8 +61,9 @@
         <label><input type="checkbox" id="checkPcSuffix"> PC 이름에 조사 변환</label>
     </div>
 
-    <button type="button" onclick="transformText()">바꾸기</button>    
+    <button type="button" id="translate" onclick="transformText()">바꾸기</button>    
     <p class="output" id="output"></p>
+    <button type="button" id="copy" onclick="copy()">복사하기</button>
 
     <script>
       // 문단합침에 체크를 넣을 경우 문장부호들을 체크해제해줌.
@@ -73,8 +74,20 @@
             const question = document.getElementById('checkQuestion').checked = false;
             const period = document.getElementById('checkPeriod').checked = false;
         }
-      });        
+      });
 
+      function copy() {
+          // output의 텍스트만 복사 (HTML 태그는 제거)
+          const text = document.getElementById('output').innerText;
+          // 클립보드에 복사
+          navigator.clipboard.writeText(text)
+            .then(() => {
+              alert('복사OK!');
+            })
+            .catch(err => {
+              alert('복사 실패! 재시도하거나 연락하세요: ' + err);
+            });
+      };
       function transformText() {
             const inputText = document.getElementById('inputText').value;
             const formatted = inputText.replace(/\n/g, '<br>');
