@@ -123,7 +123,7 @@
                     return part;
                 }).join('').trim();
             }
-            console.log(output)
+
             //desc 붙이기
             const lines = output.split('<br>');
             const descLines = lines.map(line => line.trim() ? '/desc ' + line.trim() : '').filter(Boolean);
