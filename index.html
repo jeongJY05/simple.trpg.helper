@@ -66,7 +66,7 @@
                    output = output.replace(/(KPC|kpc)는/g, kpcName + kpcSuffix2);
                    let kpcSuffix3 = hasFinalLetter ? '을' : '를';
                    output = output.replace(/(KPC|kpc)를/g, kpcName + kpcSuffix3);
-                   let kpcSuffix3 = hasFinalLetter ? '이야' : '야';
+                   let kpcSuffix4 = hasFinalLetter ? '이야' : '야';
                    output = output.replace(/(KPC|kpc)야/g, kpcName + kpcSuffix3);
                 } else{ // 조사 변환 없음
                    output = output.replace(/(KPC|kpc)/g, kpcName);                  
@@ -82,7 +82,7 @@
                    output = output.replace(/(PC|pc|탐사자)는/g, pcName + pcSuffix2);
                    let pcSuffix3 = hasFinalLetter ? '을' : '를';
                    output = output.replace(/(PC|pc|탐사자)를/g, pcName + pcSuffix3);
-                   let pcSuffix1 = hasFinalLetter ? '이야' : '야';
+                   let pcSuffix4 = hasFinalLetter ? '이야' : '야';
                    output = output.replace(/(PC|pc|탐사자)야/g, pcName + pcSuffix1);
                 } else{ // 조사 변환 없음
                    output = output.replace(/(PC|pc|탐사자)/g, pcName);  
