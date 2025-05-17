@@ -24,6 +24,8 @@
             padding: 10px;
             border-radius: 5px;
         }
+        #translate {  background-color: crimson;  color: white;  border: none; padding: 10px 30px;}
+        #copy {  background-color: green;  color: white;  border: none; padding: 5px 10px;}
     </style>
 </head>
 <body>
@@ -66,138 +68,138 @@
     <button type="button" id="copy" onclick="copy()">복사하기</button>
 
     <script>
-      // 문단합침에 체크를 넣을 경우 문장부호들을 체크해제해줌.
-      document.getElementById('checkOnePhara').addEventListener('change', function() {
-        if (this.checked) {
-            const exclamation = document.getElementById('checkExclamation').checked = false;
-            const comma = document.getElementById('checkComma').checked = false;
-            const question = document.getElementById('checkQuestion').checked = false;
-            const period = document.getElementById('checkPeriod').checked = false;
-        }
-      });
-
-      function copy() {
-          // output의 텍스트만 복사 (HTML 태그는 제거)
-          const text = document.getElementById('output').innerText;
-          // 클립보드에 복사
-          navigator.clipboard.writeText(text)
-            .then(() => {
-              alert('복사OK!');
-            })
-            .catch(err => {
-              alert('복사 실패! 재시도하거나 연락하세요: ' + err);
-            });
-      };
-      function transformText() {
-            const inputText = document.getElementById('inputText').value;
-            const formatted = inputText.replace(/\n/g, '<br>');
-            const exclamation = document.getElementById('checkExclamation').checked;
-            const comma = document.getElementById('checkComma').checked;
-            const question = document.getElementById('checkQuestion').checked;
-            const period = document.getElementById('checkPeriod').checked;
-            const kpcName = document.getElementById('kpcName').value;
-            const pcName = document.getElementById('pcName').value;
-            const checkKpcSuffix = document.getElementById('checkKpcSuffix').checked;
-            const checkPcSuffix = document.getElementById('checkPcSuffix').checked;
-            const mergeType = document.querySelector('input[name="mergetype"]:checked');
-
-            let output = formatted;
-
-            // 한 문단으로 합치기
-            if(mergeType.id ==="paraphrase") {
-                output = output.replace(/<br>/g, '');
-            } else if(mergeType.id ==="punctuation") {
-                output = output.replace(/<br>/g, '');
-                // 문장부호 개행 처리
-                let punctuations = [];
-                if (exclamation) punctuations.push('!');
-                if (comma) punctuations.push(',');
-                if (question) punctuations.push('?');
-                if (period) punctuations.push('.');
-    
-                output = output.split(/([!?,.])/).map((part, index) => {
-                    if (punctuations.includes(part.trim())) {
-                        return part.trim() + '<br>';
-                    }
-                    return part;
-                }).join('').trim();                
-            } else {
-              // 문장부호 개행 처리
-                let punctuations = [];
-                if (exclamation) punctuations.push('!');
-                if (comma) punctuations.push(',');
-                if (question) punctuations.push('?');
-                if (period) punctuations.push('.');
-    
-                output = output.split(/([!?,.])/).map((part, index) => {
-                    if (punctuations.includes(part.trim())) {
-                        return part.trim() + '<br> ';
-                    }
-                    return part;
-                }).join('').trim();
-            }
-
-            //desc 붙이기
-            const lines = output.split('<br>');
-            const descLines = lines.map(line => line.trim() ? '/desc ' + line.trim() : '').filter(Boolean);
-            output = descLines.join('<br>');        
-
-            // KPC, PC 이름 변환
-            if (kpcName) {
-                if(checkKpcSuffix) { //조사를 변환 있음
-                   const hasFinalLetter = hasFinalConsonant(kpcName);
-                   let kpcSuffix1 = hasFinalLetter ? '이' : '가';
-                   output = output.replace(/(KPC|kpc)가/g, kpcName + kpcSuffix1);
-                   let kpcSuffix2 = hasFinalLetter ? '은' : '는';
-                   output = output.replace(/(KPC|kpc)는/g, kpcName + kpcSuffix2);
-                   let kpcSuffix3 = hasFinalLetter ? '을' : '를';
-                   output = output.replace(/(KPC|kpc)를/g, kpcName + kpcSuffix3);
-                   let kpcSuffix4 = hasFinalLetter ? '이야' : '야';
-                   output = output.replace(/(KPC|kpc)야/g, kpcName + kpcSuffix3);
-                   // 그 외의 조사가 붙는 경우
-                   output = output.replace(/(KPC|kpc)/g, kpcName);
-                } else{ // 조사 변환 없음
-                   output = output.replace(/(KPC|kpc)/g, kpcName);                  
-                }               
-            }
-
-            if (pcName) {
-                if(checkPcSuffix) { //조사를 변환 있음
-                   const hasFinalLetter = hasFinalConsonant(pcName);
-                   let pcSuffix1 = hasFinalLetter ? '이' : '가';
-                   output = output.replace(/(PC|pc|탐사자)가/g, pcName + pcSuffix1);
-                   let pcSuffix2 = hasFinalLetter ? '은' : '는';
-                   output = output.replace(/(PC|pc|탐사자)는/g, pcName + pcSuffix2);
-                   let pcSuffix3 = hasFinalLetter ? '을' : '를';
-                   output = output.replace(/(PC|pc|탐사자)를/g, pcName + pcSuffix3);
-                   let pcSuffix4 = hasFinalLetter ? '이야' : '야';
-                   output = output.replace(/(PC|pc|탐사자)야/g, pcName + pcSuffix1);
-                   // 그 외의 조사가 붙는 경우
-                   output = output.replace(/(PC|pc|탐사자)/g, pcName);                      
-                } else{ // 조사 변환 없음
-                   output = output.replace(/(PC|pc|탐사자)/g, pcName);  
-                }                  
-            }
-
-            document.getElementById('output').innerHTML = output;
+      // 이벤트 등록 함수
+      function addEventListeners() {
+          // 라디오 버튼 변경 시, 문장부호 체크박스 해제
+          document.getElementById('paraphrase').addEventListener('change', handleParagraphMergeChange);
+          document.getElementById('punctuation').addEventListener('change', handleParagraphMergeChange);
       }
-      
+
+      // 문단합치기 라디오 변경 시 문장부호 체크박스 해제
+      function handleParagraphMergeChange() {
+          if (document.getElementById('paraphrase').checked || document.getElementById('punctuation').checked) {
+              setAllPunctuationCheckboxes(false);
+          }
+      }
+
+      // 문장부호 체크박스 일괄 설정
+      function setAllPunctuationCheckboxes(isChecked) {
+          document.getElementById('checkExclamation').checked = isChecked;
+          document.getElementById('checkComma').checked = isChecked;
+          document.getElementById('checkQuestion').checked = isChecked;
+          document.getElementById('checkPeriod').checked = isChecked;
+      }
+
+      // 클립보드 복사
+      function copyOutputText() {
+          const text = document.getElementById('output').innerText;
+          navigator.clipboard.writeText(text)
+              .then(() => alert('복사OK!'))
+              .catch(err => alert('복사 실패! 재시도하거나 연락하세요: ' + err));
+      }
+
+      // 텍스트 변환 메인 함수
+      function transformText() {
+          const inputText = document.getElementById('inputText').value;
+          const formatted = inputText.replace(/\n/g, '<br>');
+          const isExclamation = document.getElementById('checkExclamation').checked;
+          const isComma = document.getElementById('checkComma').checked;
+          const isQuestion = document.getElementById('checkQuestion').checked;
+          const isPeriod = document.getElementById('checkPeriod').checked;
+          const kpcName = document.getElementById('kpcName').value;
+          const pcName = document.getElementById('pcName').value;
+          const isKpcSuffix = document.getElementById('checkKpcSuffix').checked;
+          const isPcSuffix = document.getElementById('checkPcSuffix').checked;
+          const mergeType = document.querySelector('input[name="mergetype"]:checked');
+
+          let output = mergeParagraphs(formatted, mergeType.id, {
+              isExclamation, isComma, isQuestion, isPeriod
+          });
+          output = addDescToLines(output);
+          output = replaceNames(output, kpcName, isKpcSuffix, pcName, isPcSuffix);
+
+          document.getElementById('output').innerHTML = output;
+      }
+
+      // 문단 합치기 및 문장부호 개행 처리
+      function mergeParagraphs(text, mergeTypeId, punctuation) {
+          let output = text;
+          const punctuationChars = [];
+          if (punctuation.isExclamation) punctuationChars.push('!');
+          if (punctuation.isComma) punctuationChars.push(',');
+          if (punctuation.isQuestion) punctuationChars.push('?');
+          if (punctuation.isPeriod) punctuationChars.push('.');
+
+          if (mergeTypeId === "paraphrase") {
+              output = output.replace(/<br>/g, '');
+          } else if(mergeTypeId === "punctuation") {
+              output = output.replace(/<br>/g, '');
+              output = output.split(/([!?,.])/).map((part) => {
+                  if (punctuationChars.includes(part.trim())) {
+                      return part.trim() + '<br>';
+                  }
+                  return part;
+              }).join('').trim();
+          } else {
+            output = output.split(/([!?,.])/).map((part) => {
+                  if (punctuationChars.includes(part.trim())) {
+                      return part.trim() + '<br>';
+                  }
+                  return part;
+              }).join('').trim();
+          }
+          return output;
+      }
+
+      // /desc 접두어 추가
+      function addDescToLines(text) {
+          return text.split('<br>')
+              .map(line => line.trim() ? '/desc ' + line.trim() : '')
+              .filter(Boolean)
+              .join('<br>');
+      }
+
+      // 이름 치환 및 조사 변환
+      function replaceNames(text, kpcName, isKpcSuffix, pcName, isPcSuffix) {
+          let output = text;
+          if (kpcName) output = replaceNameWithSuffix(output, kpcName, isKpcSuffix, /(KPC|kpc)/g);
+          if (pcName) output = replaceNameWithSuffix(output, pcName, isPcSuffix, /(PC|pc|탐사자)/g);
+          return output;
+      }
+
+      // 조사 변환 보조 함수
+      function replaceNameWithSuffix(text, name, isSuffix, regex) {
+          let output = text;
+          if (isSuffix) {
+              const isFinal = hasFinalConsonant(name);
+              const suffixes = {
+                  '가': isFinal ? '이' : '가',
+                  '는': isFinal ? '은' : '는',
+                  '를': isFinal ? '을' : '를',
+                  '야': isFinal ? '이야' : '야'
+              };
+              Object.entries(suffixes).forEach(([key, value]) => {
+                  output = output.replace(new RegExp(`${regex.source}${key}`, 'g'), name + value);
+              });
+              output = output.replace(regex, name);
+          } else {
+              output = output.replace(regex, name);
+          }
+          return output;
+      }
+
+      // 한글 종성 여부 판별
       function hasFinalConsonant(word) {
-        // 한글 음절의 유니코드 범위: 가(0xAC00) ~ 힣(0xD7A3)
-        const lastChar = word[word.length - 1]; // 마지막 문자
-        const unicode = lastChar.charCodeAt(0); // 유니코드 값 가져오기
+          const lastChar = word[word.length - 1];
+          const unicode = lastChar.charCodeAt(0);
+          if (unicode < 0xAC00 || unicode > 0xD7A3) return false;
+          return (unicode - 0xAC00) % 28 !== 0;
+      }
 
-        // 한글 음절의 유니코드 범위 체크
-        if (unicode < 0xAC00 || unicode > 0xD7A3) {
-            return false; // 한글 음절이 아닐 경우 false 반환
-        }
-
-        // 종성 여부 확인
-        const finalConsonant = (unicode - 0xAC00) % 28; // 유니코드 값에서 종성 부분 계산
-
-        // 종성이 0이면 받침이 없는 음절, 1 이상이면 받침이 있음
-        return finalConsonant !== 0;
-    }
+      // 이벤트 연결
+      addEventListeners();
+      document.getElementById('translate').onclick = transformText;
+      document.getElementById('copy').onclick = copyOutputText;
     </script>    
 </body>
 </html>
