@@ -102,6 +102,8 @@
                    output = output.replace(/(KPC|kpc)를/g, kpcName + kpcSuffix3);
                    let kpcSuffix4 = hasFinalLetter ? '이야' : '야';
                    output = output.replace(/(KPC|kpc)야/g, kpcName + kpcSuffix3);
+                   // 그 외의 조사가 붙는 경우
+                   output = output.replace(/(KPC|kpc)/g, kpcName);
                 } else{ // 조사 변환 없음
                    output = output.replace(/(KPC|kpc)/g, kpcName);                  
                 }               
@@ -118,6 +120,8 @@
                    output = output.replace(/(PC|pc|탐사자)를/g, pcName + pcSuffix3);
                    let pcSuffix4 = hasFinalLetter ? '이야' : '야';
                    output = output.replace(/(PC|pc|탐사자)야/g, pcName + pcSuffix1);
+                   // 그 외의 조사가 붙는 경우
+                   output = output.replace(/(PC|pc|탐사자)/g, pcName);                      
                 } else{ // 조사 변환 없음
                    output = output.replace(/(PC|pc|탐사자)/g, pcName);  
                 }                  
