@@ -25,41 +25,6 @@
             border-radius: 5px;
         }
     </style>
-</head>
-<body>
-    <h1>문장 변환기</h1>
-
-    <div>
-        <label for="inputText">입력 문장:</label>
-        <textarea id="inputText"></textarea>
-    </div>
-
-    <div>
-        <h3>문장부호 개행 설정</h3>
-        <label><input type="checkbox" id="checkExclamation"> ! (느낌표)</label>
-        <label><input type="checkbox" id="checkComma"> , (쉼표)</label>
-        <label><input type="checkbox" id="checkQuestion"> ? (물음표)</label>
-        <label><input type="checkbox" id="checkPeriod"> . (마침표)</label>
-    </div>
-
-    <div>
-        <h3>이름 변환 설정</h3>
-        <label for="kpcName">KPC 이름:</label>
-        <input type="text" id="kpcName">
-        <label for="pcName">PC 이름:</label>
-        <input type="text" id="pcName">
-    </div>
-
-    <div>
-        <h3>조사 변환 설정</h3>
-        <label><input type="checkbox" id="checkKpcSuffix"> KPC 이름에 조사 변환</label>
-        <label><input type="checkbox" id="checkPcSuffix"> PC 이름에 조사 변환</label>
-    </div>
-
-    <button onclick="transformText()">바꾸기</button>
-
-    <p class="output" id="output"></p>
-
     <script>
       function transformText() {
             const inputText = document.getElementById('inputText').value;
@@ -144,5 +109,39 @@
         return finalConsonant !== 0;
     }
     </script>
+</head>
+<body>
+    <h1>문장 변환기</h1>
+
+    <div>
+        <label for="inputText">입력 문장:</label>
+        <textarea id="inputText"></textarea>
+    </div>
+
+    <div>
+        <h3>문장부호 개행 설정</h3>
+        <label><input type="checkbox" id="checkExclamation"> ! (느낌표)</label>
+        <label><input type="checkbox" id="checkComma"> , (쉼표)</label>
+        <label><input type="checkbox" id="checkQuestion"> ? (물음표)</label>
+        <label><input type="checkbox" id="checkPeriod"> . (마침표)</label>
+    </div>
+
+    <div>
+        <h3>이름 변환 설정</h3>
+        <label for="kpcName">KPC 이름:</label>
+        <input type="text" id="kpcName">
+        <label for="pcName">PC 이름:</label>
+        <input type="text" id="pcName">
+    </div>
+
+    <div>
+        <h3>조사 변환 설정</h3>
+        <label><input type="checkbox" id="checkKpcSuffix"> KPC 이름에 조사 변환</label>
+        <label><input type="checkbox" id="checkPcSuffix"> PC 이름에 조사 변환</label>
+    </div>
+
+    <button onclick="transformText()">바꾸기</button>
+
+    <p class="output" id="output"></p>
 </body>
 </html>
