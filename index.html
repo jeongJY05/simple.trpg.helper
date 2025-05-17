@@ -25,14 +25,12 @@
             border-radius: 5px;
         }
         .buttonBox {
-            display: flex; 
-            justify-content: flex-end;
+          display: flex;
+          justify-content: flex-end; /* 오른쪽 정렬 */
+          gap: 50px; /* 버튼 사이 간격 */
         }
-        button {
-            margin-left: auto;
-        }
-        #translate {  background-color: black;  color: white;  border: none; padding: 10px 30px;}
-        #copy {  background-color: green;  color: white;  border: none; padding: 5px 10px;}
+        #translate {  background-color: black;  color: white;  border: none; padding: 20px 50px; margin-right:20px}
+        #copy {  background-color: green;  color: white;  border: none; padding: 20px 30px;}
     </style>
 </head>
 <body>
@@ -74,11 +72,9 @@
     <br>
     <div style="display: flex; justify-content: flex-end;">
       <button type="button" id="translate" onclick="transformText()">바꾸기</button>    
-    </div>
-    <p class="output" id="output"></p>
-    <div class="buttonBox">
       <button type="button" id="copy" onclick="copy()">복사하기</button>
     </div>
+    <p class="output" id="output"></p>
 
     <script>
       // 이벤트 등록 함수
