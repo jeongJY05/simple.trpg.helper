@@ -29,6 +29,17 @@
           justify-content: flex-end; /* 오른쪽 정렬 */
           gap: 50px; /* 버튼 사이 간격 */
         }
+        .input-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .input-row label {
+          text-align: left;
+        }
+        .input-row button {
+          /* 오른쪽 정렬은 flex가 해줌, 추가 스타일은 필요시 */
+        }      
         #translate {  background-color: crimson;  color: white;  border: none; padding: 20px 50px; margin-right:20px}
         #copy {  background-color: green;  color: white;  border: none; padding: 20px 30px;}
     </style>
@@ -37,7 +48,10 @@
     <h1>문장 변환기</h1>
 
     <div>
-        <label for="inputText">입력 문장:</label>
+        <div class="input-row">
+          <label for="inputText">입력 문장:</label>
+          <button type="button" id="copyDesc"  onclick="copyDesc()">/desc복사</button>
+        </div>
         <textarea id="inputText"></textarea>
     </div>
     <div>
@@ -52,7 +66,7 @@
         <label><input type="checkbox" id="checkComma"> , (쉼표)</label>
         <label><input type="checkbox" id="checkQuestion"> ? (물음표)</label>
         <label><input type="checkbox" id="checkPeriod"> . (마침표)</label>
-        <button type="button" id="punctuationAll"  onclick="punctuationAll()">모두 선택/해제</button>
+        <button type="button" id="punctuationAll">모두 선택/해제</button>
     </div>
 
     <div>
@@ -72,8 +86,8 @@
     <br>
     <br>
     <div style="display: flex; justify-content: flex-end;">
-      <button type="button" id="translate" onclick="transformText()">바꾸기</button>    
-      <button type="button" id="copy" onclick="copy()">복사하기</button>
+      <button type="button" id="translate">바꾸기</button>    
+      <button type="button" id="copy">복사하기</button>
     </div>
     <p class="output" id="output"></p>
 
@@ -98,6 +112,13 @@
       function copyOutputText() {
           const text = document.getElementById('output').innerText;
           navigator.clipboard.writeText(text);
+      }
+
+      // 클립보드 복사
+      function copyDesc() {
+          const text = '/desc ';
+          navigator.clipboard.writeText(text)
+              .then(() => {});
       }
 
       // 텍스트 변환 메인 함수
@@ -199,9 +220,9 @@
       }
 
       // 이벤트 연결
-      addEventListeners();
       document.getElementById('translate').onclick = transformText;
       document.getElementById('copy').onclick = copyOutputText;
+      document.getElementById('punctuationAll').onclick = punctuationAll;
     </script>    
 </body>
 </html>
