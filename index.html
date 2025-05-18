@@ -52,6 +52,7 @@
         <label><input type="checkbox" id="checkComma"> , (쉼표)</label>
         <label><input type="checkbox" id="checkQuestion"> ? (물음표)</label>
         <label><input type="checkbox" id="checkPeriod"> . (마침표)</label>
+        <button type="button" id="punctuationAll"  onclick="punctuationAll()">모두 선택/해제</button>
     </div>
 
     <div>
@@ -77,20 +78,14 @@
     <p class="output" id="output"></p>
 
     <script>
-      // 이벤트 등록 함수
-      function addEventListeners() {
-          // 라디오 버튼 변경 시, 문장부호 체크박스 해제
-          document.getElementById('paraphrase').addEventListener('change', handleParagraphMergeChange);
-          document.getElementById('punctuation').addEventListener('change', handleParagraphMergeChange);
+      // !에 체크가 있으면 모두 해제, 없으면 모두 체크
+      function punctuationAll() {
+          const isChecked = document.getElementById('checkExclamation').checked;
+          document.getElementById('checkExclamation').checked = !isChecked;
+          document.getElementById('checkComma').checked = !isChecked;
+          document.getElementById('checkQuestion').checked = !isChecked;
+          document.getElementById('checkPeriod').checked = !isChecked;
       }
-
-      // 문단합치기 라디오 변경 시 문장부호 체크박스 해제
-      function handleParagraphMergeChange() {
-          if (document.getElementById('paraphrase').checked || document.getElementById('punctuation').checked) {
-              setAllPunctuationCheckboxes(false);
-          }
-      }
-
       // 문장부호 체크박스 일괄 설정
       function setAllPunctuationCheckboxes(isChecked) {
           document.getElementById('checkExclamation').checked = isChecked;
@@ -102,9 +97,7 @@
       // 클립보드 복사
       function copyOutputText() {
           const text = document.getElementById('output').innerText;
-          navigator.clipboard.writeText(text)
-              .then(() => alert('복사OK!'))
-              .catch(err => alert('복사 실패! 재시도하거나 연락하세요: ' + err));
+          navigator.clipboard.writeText(text);
       }
 
       // 텍스트 변환 메인 함수
