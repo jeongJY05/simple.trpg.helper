@@ -79,9 +79,12 @@
         <button type="button" id="punctuationAll">모두 선택/해제</button>
       
         <div>
-          <h4>따옴표 설정</h4>
+          <h4>따옴표</h4>
           <label><input type="checkbox" id="checkSingleQuote"> ' (작은 따옴표)</label>
           <label><input type="checkbox" id="checkDubleQuote"> " (큰 따옴표)</label>
+          <br>
+          <br>
+<!--           <label><input type="checkbox" id="ignorePunctation"> 따옴표 안 문장 부호 개행 무시</label> -->
         </div>
         </div>
     </section>
@@ -142,20 +145,25 @@
       function transformText() {
           const inputText = document.getElementById('inputText').value;
           const formatted = inputText.replace(/\n/g, '<br>');
+          // 문단 합침
+          const mergeType = document.querySelector('input[name="mergetype"]:checked');
+          //문장부호
           const isExclamation = document.getElementById('checkExclamation').checked;
           const isComma = document.getElementById('checkComma').checked;
           const isQuestion = document.getElementById('checkQuestion').checked;
           const isPeriod = document.getElementById('checkPeriod').checked;
+          const useSingleQuote = document.getElementById('checkSingleQuote').checked;
+          const useDoubleQuote = document.getElementById('checkDubleQuote').checked;
+          // const isIgnorePunctation = document.getElementById('ignorePunctation').checked;
+          // 이름 변환
           const kpcName = document.getElementById('kpcName').value;
           const pcName = document.getElementById('pcName').value;
           const isKpcSuffix = document.getElementById('checkKpcSuffix').checked;
           const isPcSuffix = document.getElementById('checkPcSuffix').checked;
-          const mergeType = document.querySelector('input[name="mergetype"]:checked');
-
-          let output = mergeParagraphs(formatted, mergeType.id, {
-              isExclamation, isComma, isQuestion, isPeriod
-          });
-          output = quotation(output);
+          let output = mergeParagraphs(formatted, mergeType.id, 
+             { isExclamation, isComma, isQuestion, isPeriod}, 
+             {useSingleQuote, useDoubleQuote});
+          output = quotation(output, useSingleQuote, useDoubleQuote);
           output = addDescToLines(output);
           output = replaceNames(output, kpcName, isKpcSuffix, pcName, isPcSuffix);
 
@@ -163,7 +171,7 @@
       }
 
       // 문단 합치기 및 문장부호 개행 처리
-      function mergeParagraphs(text, mergeTypeId, punctuation) {
+      function mergeParagraphs(text, mergeTypeId, punctuation, quoteOptions) {
           let output = text;
           const punctuationChars = [];
           if (punctuation.isExclamation) punctuationChars.push('!');
@@ -172,41 +180,44 @@
           if (punctuation.isPeriod) punctuationChars.push('.');
 
           if (mergeTypeId === "paraphrase") {
-              output = output.replace(/<br>/g, '');
+            output = output.replace(/<br>/g, '');
           } else if(mergeTypeId === "punctuation") {
-              output = output.replace(/<br>/g, '');
-              output = output.split(/([!?,.])/).map((part) => {
-                  if (punctuationChars.includes(part.trim())) {
-                      return part.trim() + '<br>';
-                  }
-                  return part;
-              }).join('').trim();
+            output = output.replace(/<br>/g, '');
+            output = output.split(/([!?,.])/).map((part) => {
+              if (punctuationChars.includes(part.trim())) {
+                return part.trim() + '<br>';
+              }
+              return part;
+            }).join('').trim();
           } else {
             output = output.split(/([!?,.])/).map((part) => {
-                  if (punctuationChars.includes(part.trim())) {
-                      return part.trim() + '<br>';
-                  }
-                  return part;
-              }).join('').trim();
+              if (punctuationChars.includes(part.trim())) {
+                return part.trim() + '<br>';
+              }
+              return part;
+            }).join('').trim();
           }
           return output;
       }
 
       // quotation처리
-      function quotation(text) {
-        const useSingleQuote = document.getElementById('checkSingleQuote').checked;
-        const useDoubleQuote = document.getElementById('checkDubleQuote').checked;
+      function quotation(text, useSingleQuote, useDoubleQuote) {
 
-        let result = text;
+        let output = text;
         // 1. 따옴표 쌍 내부 구간을 추출하여, 닫는 따옴표 뒤에 개행 삽입
         if (useSingleQuote) {
-          result = result.replace(/'([^']*)'/g, (match, p1) => `'${p1}'<br>`);
+
+          output = output.replace(/'([^']*)'/g, (match, p1) => `'${p1}'<br>`);
         }
         if (useDoubleQuote) {
-          result = result.replace(/"([^"]*)"/g, (match, p1) => `"${p1}"<br>`);
+          output = output.replace(/"([^"]*)"/g, (match, p1) => {
+            return `"${p1.replace(/(<br>|\n)/g, ' ')}"`;
+          });
+          output = output.replace(/"([^"]*)"/g, (match, p1) => `"${p1}"<br>`);          
         }
-        return result.trim();
-      }      
+        return output.trim();
+      }
+
       // /desc 접두어 추가
       function addDescToLines(text) {
           return text.split('<br>')
