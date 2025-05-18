@@ -84,7 +84,7 @@
           <label><input type="checkbox" id="checkDubleQuote"> " (큰 따옴표)</label>
           <br>
           <br>
-<!--           <label><input type="checkbox" id="ignorePunctation"> 따옴표 안 문장 부호 개행 무시</label> -->
+          <label><input type="checkbox" id="ignorePunctation"> 따옴표 안 문장 부호 개행 무시</label>
         </div>
         </div>
     </section>
@@ -154,7 +154,7 @@
           const isPeriod = document.getElementById('checkPeriod').checked;
           const useSingleQuote = document.getElementById('checkSingleQuote').checked;
           const useDoubleQuote = document.getElementById('checkDubleQuote').checked;
-          // const isIgnorePunctation = document.getElementById('ignorePunctation').checked;
+          const isIgnorePunctation = document.getElementById('ignorePunctation').checked;
           // 이름 변환
           const kpcName = document.getElementById('kpcName').value;
           const pcName = document.getElementById('pcName').value;
@@ -162,7 +162,7 @@
           const isPcSuffix = document.getElementById('checkPcSuffix').checked;
           let output = mergeParagraphs(formatted, mergeType.id, 
              { isExclamation, isComma, isQuestion, isPeriod}, 
-             {useSingleQuote, useDoubleQuote});
+             {useSingleQuote, useDoubleQuote, isIgnorePunctation});
           output = quotation(output, useSingleQuote, useDoubleQuote);
           output = addDescToLines(output);
           output = replaceNames(output, kpcName, isKpcSuffix, pcName, isPcSuffix);
@@ -182,37 +182,72 @@
           if (mergeTypeId === "paraphrase") {
             output = output.replace(/<br>/g, '');
           } else if(mergeTypeId === "punctuation") {
-            output = output.replace(/<br>/g, '');
-            output = output.split(/([!?,.])/).map((part) => {
-              if (punctuationChars.includes(part.trim())) {
-                return part.trim() + '<br>';
+            if(quoteOptions.isIgnorePunctation){
+              const quotedBlocks = [];
+              let idx = 0;
+              const quotationRegex = getQuotationRegex(quoteOptions.useSingleQuote, quoteOptions.useDoubleQuote);
+              output = output.replace(/<br>/g, '');
+              output = splitByPunctuation(output, punctuationChars);
+              if (quotationRegex) {
+                output = output.replace(quotationRegex, (match, ...groups) => {
+                  quotedBlocks.push(match.replace(/<br>/g, ''));
+                  return `__QUOTE_BLOCK_${idx++}__`;
+                });
               }
-              return part;
-            }).join('').trim();
+              output = output.replace(/__QUOTE_BLOCK_(\d+)__/g, (_, n) => quotedBlocks[n]);
+              return output;
+            } else {
+              output = output.replace(/<br>/g, '');
+              output = splitByPunctuation(output, punctuationChars);
+            }
           } else {
-            output = output.split(/([!?,.])/).map((part) => {
-              if (punctuationChars.includes(part.trim())) {
-                return part.trim() + '<br>';
+            if(quoteOptions.isIgnorePunctation){
+              const quotedBlocks = [];
+              let idx = 0;
+              const quotationRegex = getQuotationRegex(quoteOptions.useSingleQuote,quoteOptions.useDoubleQuote);
+              output = splitByPunctuation(output, punctuationChars);
+              if (quotationRegex) {
+                output = output.replace(quotationRegex, (match, ...groups) => {
+                  quotedBlocks.push(match.replace(/<br>/g, ''));
+                  return `__QUOTE_BLOCK_${idx++}__`;
+                });
               }
-              return part;
-            }).join('').trim();
+              output = output.replace(/__QUOTE_BLOCK_(\d+)__/g, (_, n) => quotedBlocks[n]);
+              return output;
+            } else {
+              output = splitByPunctuation(output, punctuationChars);
+            }
           }
           return output;
       }
 
+      function getQuotationRegex(useSingleQuote, useDoubleQuote) {
+          if (useSingleQuote && useDoubleQuote) {
+              return /(['"])(.*?)\1/gs; // both single and double quotes
+          } else if (useDoubleQuote) {
+              return /"([^"]*)"/gs; // double quotes only
+          } else if (useSingleQuote) {
+              return /'([^']*)'/gs; // single quotes only
+          }
+          return null; // neither
+      }
+
+      function splitByPunctuation(text, punctuationChars) {
+          return text.split(/([!?,.])/).map((part) => {
+              if (punctuationChars.includes(part.trim())) {
+                  return part.trim() + '<br>';
+              }
+              return part;
+          }).join('').trim();
+      }
+
       // quotation처리
       function quotation(text, useSingleQuote, useDoubleQuote) {
-
         let output = text;
-        // 1. 따옴표 쌍 내부 구간을 추출하여, 닫는 따옴표 뒤에 개행 삽입
         if (useSingleQuote) {
-
           output = output.replace(/'([^']*)'/g, (match, p1) => `'${p1}'<br>`);
         }
         if (useDoubleQuote) {
-          output = output.replace(/"([^"]*)"/g, (match, p1) => {
-            return `"${p1.replace(/(<br>|\n)/g, ' ')}"`;
-          });
           output = output.replace(/"([^"]*)"/g, (match, p1) => `"${p1}"<br>`);          
         }
         return output.trim();
