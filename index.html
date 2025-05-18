@@ -17,6 +17,15 @@
             height: 100px;
             margin-bottom: 10px;
         }
+        h3, h4 {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        section {
+            background-color: #f0f0f0;
+            padding: 5px 15px;
+            margin-bottom: 10px;
+        }      
         .output {
             margin-top: 20px;
             white-space: pre-wrap;
@@ -47,42 +56,49 @@
 <body>
     <h1>문장 변환기</h1>
 
-    <div>
+    <section>
         <div class="input-row">
           <label for="inputText">입력 문장:</label>
           <button type="button" id="copyDesc"  onclick="copyDesc()">/desc복사</button>
         </div>
           <br>
         <textarea id="inputText"></textarea>
-    </div>
-    <div>
+    </section>
+    <section>
         <h3>문단으로 합침 설정</h3>
         <label><input type="radio" id="paraphrase" name="mergetype"> 한 문단으로 합치기 </label>
         <label><input type="radio" id="punctuation" name="mergetype"> 문장부호를 기준으로 합치기 </label>
         <label><input type="radio" id="default" checked name="mergetype"> 합치지 않음(기존설정) </label>
-    </div>
-    <div>
+    </section>
+    <section>
         <h3>문장부호 개행 설정</h3>
         <label><input type="checkbox" id="checkExclamation"> ! (느낌표)</label>
         <label><input type="checkbox" id="checkComma"> , (쉼표)</label>
         <label><input type="checkbox" id="checkQuestion"> ? (물음표)</label>
         <label><input type="checkbox" id="checkPeriod"> . (마침표)</label>
         <button type="button" id="punctuationAll">모두 선택/해제</button>
-    </div>
+      
+        <div>
+          <h4>따옴표 설정</h4>
+          <label><input type="checkbox" id="checkSingleQuote"> ' (작은 따옴표)</label>
+          <label><input type="checkbox" id="checkDubleQuote"> " (큰 따옴표)</label>
+        </div>
+        </div>
+    </section>
 
-    <div>
+    <section>      
         <h3>이름 변환 설정</h3>
         <label for="kpcName">KPC 이름:</label>
         <input type="text" id="kpcName">
         <label for="pcName">PC 이름:</label>
         <input type="text" id="pcName">
-    </div>
+        <div>
+          <h4>조사 변환 설정</h4>
+          <label><input type="checkbox" id="checkKpcSuffix"> KPC 이름에 조사 변환</label>
+          <label><input type="checkbox" id="checkPcSuffix"> PC 이름에 조사 변환</label>
+        </div>
+    </section>
 
-    <div>
-        <h3>조사 변환 설정</h3>
-        <label><input type="checkbox" id="checkKpcSuffix"> KPC 이름에 조사 변환</label>
-        <label><input type="checkbox" id="checkPcSuffix"> PC 이름에 조사 변환</label>
-    </div>
     <br>
     <br>
     <br>
@@ -139,6 +155,7 @@
           let output = mergeParagraphs(formatted, mergeType.id, {
               isExclamation, isComma, isQuestion, isPeriod
           });
+          output = quotation(output);
           output = addDescToLines(output);
           output = replaceNames(output, kpcName, isKpcSuffix, pcName, isPcSuffix);
 
@@ -175,6 +192,21 @@
           return output;
       }
 
+      // quotation처리
+      function quotation(text) {
+        const useSingleQuote = document.getElementById('checkSingleQuote').checked;
+        const useDoubleQuote = document.getElementById('checkDubleQuote').checked;
+
+        let result = text;
+        // 1. 따옴표 쌍 내부 구간을 추출하여, 닫는 따옴표 뒤에 개행 삽입
+        if (useSingleQuote) {
+          result = result.replace(/'([^']*)'/g, (match, p1) => `'${p1}'<br>`);
+        }
+        if (useDoubleQuote) {
+          result = result.replace(/"([^"]*)"/g, (match, p1) => `"${p1}"<br>`);
+        }
+        return result.trim();
+      }      
       // /desc 접두어 추가
       function addDescToLines(text) {
           return text.split('<br>')
