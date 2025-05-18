@@ -40,7 +40,7 @@
         .input-row button {
           /* 오른쪽 정렬은 flex가 해줌, 추가 스타일은 필요시 */
         }      
-        #translate {  background-color: crimson;  color: white;  border: none; padding: 20px 50px; margin-right:20px}
+        #translate {  background-color: crimson;  color: white;  border: none; padding: 20px 50px; margin-left:20px}
         #copy {  background-color: green;  color: white;  border: none; padding: 20px 30px;}
     </style>
 </head>
@@ -52,6 +52,7 @@
           <label for="inputText">입력 문장:</label>
           <button type="button" id="copyDesc"  onclick="copyDesc()">/desc복사</button>
         </div>
+          <br>
         <textarea id="inputText"></textarea>
     </div>
     <div>
