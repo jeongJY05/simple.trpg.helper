@@ -241,15 +241,33 @@
           }).join('').trim();
       }
 
-      // quotation처리
-      function quotation(text, useSingleQuote, useDoubleQuote) {
+     function quotation(text, useSingleQuote, useDoubleQuote) {
+        const quoteTypes = [];
+        if (useSingleQuote) quoteTypes.push("'");
+        if (useDoubleQuote) quoteTypes.push('"');
+
         let output = text;
-        if (useSingleQuote) {
-          output = output.replace(/'([^']*)'/g, (match, p1) => `'${p1}'<br>`);
-        }
-        if (useDoubleQuote) {
-          output = output.replace(/"([^"]*)"/g, (match, p1) => `"${p1}"<br>`);          
-        }
+
+        quoteTypes.forEach(quote => {
+          const regex = new RegExp(
+            '(?:^|<br>|\\n)?' + 
+            `\\${quote}([^\\${quote}]*)\\${quote}` +
+            '(?!<br>)', 
+            'g'
+          );
+
+          output = output.replace(regex, (match, inside, offset, string) => {
+            const before = string.slice(0, offset);
+            const needNewlineBefore = !before.endsWith('<br>') && !before.endsWith('\n');
+            let result = '';
+            if (needNewlineBefore && before.length > 0) result += '<br>';
+            result += `${quote}${inside}${quote}<br>`;
+            return result;
+          });
+        });
+
+        output = output.replace(/(<br>\s*){2,}/g, '<br>');
+
         return output.trim();
       }
 
