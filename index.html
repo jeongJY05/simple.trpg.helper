@@ -77,16 +77,17 @@
         <label><input type="checkbox" id="checkComma"> , (쉼표)</label>
         <label><input type="checkbox" id="checkQuestion"> ? (물음표)</label>
         <label><input type="checkbox" id="checkPeriod"> . (마침표)</label>
+        <label><input type="checkbox" id="checkSpecialPunct"> 특수문장부호</label>
         <button type="button" id="punctuationAll">모두 선택/해제</button>
-      
+
         <div>
           <h4>따옴표</h4>
           <label><input type="checkbox" id="checkSingleQuote"> ' (작은 따옴표)</label>
           <label><input type="checkbox" id="checkDubleQuote"> " (큰 따옴표)</label>
+          <label><input type="checkbox" id="checkSpecialQuote"> 특수따옴표</label>
           <br>
           <br>
           <label><input type="checkbox" id="ignorePunctation"> 따옴표 안 문장 부호 개행 무시</label>
-        </div>
         </div>
     </section>
 
@@ -120,6 +121,7 @@
           document.getElementById('checkComma').checked = !isChecked;
           document.getElementById('checkQuestion').checked = !isChecked;
           document.getElementById('checkPeriod').checked = !isChecked;
+          document.getElementById('checkSpecialPunct').checked = !isChecked;
       }
       // 문장부호 체크박스 일괄 설정
       function setAllPunctuationCheckboxes(isChecked) {
@@ -127,6 +129,7 @@
           document.getElementById('checkComma').checked = isChecked;
           document.getElementById('checkQuestion').checked = isChecked;
           document.getElementById('checkPeriod').checked = isChecked;
+          document.getElementById('checkSpecialPunct').checked = isChecked;
       }
 
       // 클립보드 복사
@@ -153,18 +156,20 @@
           const isComma = document.getElementById('checkComma').checked;
           const isQuestion = document.getElementById('checkQuestion').checked;
           const isPeriod = document.getElementById('checkPeriod').checked;
+          const isSpecialPunct = document.getElementById('checkSpecialPunct').checked;
           const useSingleQuote = document.getElementById('checkSingleQuote').checked;
           const useDoubleQuote = document.getElementById('checkDubleQuote').checked;
+          const useSpecialQuote = document.getElementById('checkSpecialQuote').checked;
           const isIgnorePunctation = document.getElementById('ignorePunctation').checked;
           // 이름 변환
           const kpcName = document.getElementById('kpcName').value;
           const pcName = document.getElementById('pcName').value;
           const isKpcSuffix = document.getElementById('checkKpcSuffix').checked;
           const isPcSuffix = document.getElementById('checkPcSuffix').checked;
-          let output = mergeParagraphs(formatted, mergeType.id, 
-             { isExclamation, isComma, isQuestion, isPeriod}, 
-             {useSingleQuote, useDoubleQuote, isIgnorePunctation});
-          output = quotation(output, useSingleQuote, useDoubleQuote);
+          let output = mergeParagraphs(formatted, mergeType.id,
+             { isExclamation, isComma, isQuestion, isPeriod, isSpecialPunct},
+             {useSingleQuote, useDoubleQuote, useSpecialQuote, isIgnorePunctation});
+          output = quotation(output, useSingleQuote, useDoubleQuote, useSpecialQuote);
           output = addDescToLines(output);
           output = replaceNames(output, kpcName, isKpcSuffix, pcName, isPcSuffix);
 
@@ -179,6 +184,14 @@
           if (punctuation.isComma) punctuationChars.push(',');
           if (punctuation.isQuestion) punctuationChars.push('?');
           if (punctuation.isPeriod) punctuationChars.push('.');
+          if (punctuation.isSpecialPunct) punctuationChars.push(
+            '\uFF01', '\u203C', '\u2049',  // ！ ‼ ⁉ (느낌표 변종)
+            '\uFF0C', '\u3001',              // ， 、 (쉼표 변종)
+            '\uFF1F', '\u2047', '\u2048', '\u203D',  // ？ ⁇ ⁈ ‽ (물음표 변종)
+            '\uFF0E', '\u3002',              // ． 。 (마침표 변종)
+            '\u2026', '\u2025', '\u22EF',    // … ‥ ⋯ (말줄임표)
+            '\u2014', '\u2015', '\u2012', '\u2013'  // — ― ‒ – (대시 변종)
+          );
 
           if (mergeTypeId === "paraphrase") {
             output = output.replace(/<br>/g, '');
@@ -186,7 +199,7 @@
             if(quoteOptions.isIgnorePunctation){
               const quotedBlocks = [];
               let idx = 0;
-              const quotationRegex = getQuotationRegex(quoteOptions.useSingleQuote, quoteOptions.useDoubleQuote);
+              const quotationRegex = getQuotationRegex(quoteOptions.useSingleQuote, quoteOptions.useDoubleQuote, quoteOptions.useSpecialQuote);
               output = output.replace(/<br>/g, '');
               output = splitByPunctuation(output, punctuationChars);
               if (quotationRegex) {
@@ -205,7 +218,7 @@
             if(quoteOptions.isIgnorePunctation){
               const quotedBlocks = [];
               let idx = 0;
-              const quotationRegex = getQuotationRegex(quoteOptions.useSingleQuote,quoteOptions.useDoubleQuote);
+              const quotationRegex = getQuotationRegex(quoteOptions.useSingleQuote, quoteOptions.useDoubleQuote, quoteOptions.useSpecialQuote);
               output = splitByPunctuation(output, punctuationChars);
               if (quotationRegex) {
                 output = output.replace(quotationRegex, (match, ...groups) => {
@@ -222,19 +235,34 @@
           return output;
       }
 
-      function getQuotationRegex(useSingleQuote, useDoubleQuote) {
-          if (useSingleQuote && useDoubleQuote) {
-              return /(['"])(.*?)\1/gs; // both single and double quotes
-          } else if (useDoubleQuote) {
-              return /"([^"]*)"/gs; // double quotes only
-          } else if (useSingleQuote) {
-              return /'([^']*)'/gs; // single quotes only
+      function getQuotationRegex(useSingleQuote, useDoubleQuote, useSpecialQuote) {
+          const patterns = [];
+          if (useSingleQuote) patterns.push("'([^']*)'");
+          if (useDoubleQuote) patterns.push('"([^"]*)"');
+          if (useSpecialQuote) {
+              patterns.push('\u201C([^\u201D]*)\u201D');  // " "
+              patterns.push('\u201E([^\u201D]*)\u201D');  // „ "
+              patterns.push('\u201F([^\u201D]*)\u201D');  // ‟ "
+              patterns.push('\u2018([^\u2019]*)\u2019');  // ' '
+              patterns.push('\u201A([^\u2019]*)\u2019');  // ‚ '
+              patterns.push('\u201B([^\u2019]*)\u2019');  // ‛ '
+              patterns.push('\u00AB([^\u00BB]*)\u00BB');  // « »
+              patterns.push('\u2039([^\u203A]*)\u203A');  // ‹ ›
+              patterns.push('\u300C([^\u300D]*)\u300D');  // 「 」
+              patterns.push('\u300E([^\u300F]*)\u300F');  // 『 』
+              patterns.push('\uFF02([^\uFF02]*)\uFF02');  // ＂ ＂
+              patterns.push('\uFF07([^\uFF07]*)\uFF07');  // ＇ ＇
+              patterns.push('\u3003([^\u3003]*)\u3003');  // 〃 〃
           }
-          return null; // neither
+          if (patterns.length === 0) return null;
+          return new RegExp(patterns.join('|'), 'gs');
       }
 
       function splitByPunctuation(text, punctuationChars) {
-          return text.split(/([!?,.])/).map((part) => {
+          if (punctuationChars.length === 0) return text;
+          const escaped = punctuationChars.map(c => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+          const splitRegex = new RegExp('(' + escaped.join('|') + ')', 'g');
+          return text.split(splitRegex).map((part) => {
               if (punctuationChars.includes(part.trim())) {
                   return part.trim() + '<br>';
               }
@@ -242,18 +270,35 @@
           }).join('').trim();
       }
 
-     function quotation(text, useSingleQuote, useDoubleQuote) {
+     function quotation(text, useSingleQuote, useDoubleQuote, useSpecialQuote) {
         const quoteTypes = [];
-        if (useSingleQuote) quoteTypes.push("'");
-        if (useDoubleQuote) quoteTypes.push('"');
+        if (useSingleQuote) quoteTypes.push({open: "'", close: "'"});
+        if (useDoubleQuote) quoteTypes.push({open: '"', close: '"'});
+        if (useSpecialQuote) {
+          quoteTypes.push({open: '\u201C', close: '\u201D'});  // " "
+          quoteTypes.push({open: '\u201E', close: '\u201D'});  // „ "
+          quoteTypes.push({open: '\u201F', close: '\u201D'});  // ‟ "
+          quoteTypes.push({open: '\u2018', close: '\u2019'});  // ' '
+          quoteTypes.push({open: '\u201A', close: '\u2019'});  // ‚ '
+          quoteTypes.push({open: '\u201B', close: '\u2019'});  // ‛ '
+          quoteTypes.push({open: '\u00AB', close: '\u00BB'});  // « »
+          quoteTypes.push({open: '\u2039', close: '\u203A'});  // ‹ ›
+          quoteTypes.push({open: '\u300C', close: '\u300D'});  // 「 」
+          quoteTypes.push({open: '\u300E', close: '\u300F'});  // 『 』
+          quoteTypes.push({open: '\uFF02', close: '\uFF02'});  // ＂ ＂
+          quoteTypes.push({open: '\uFF07', close: '\uFF07'});  // ＇ ＇
+          quoteTypes.push({open: '\u3003', close: '\u3003'});  // 〃 〃
+        }
 
         let output = text;
 
-        quoteTypes.forEach(quote => {
+        quoteTypes.forEach(({open, close}) => {
+          const escapedOpen = open.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const escapedClose = close.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           const regex = new RegExp(
-            '(?:^|<br>|\\n)?' + 
-            `\\${quote}([^\\${quote}]*)\\${quote}` +
-            '(?!<br>)', 
+            '(?:^|<br>|\\n)?' +
+            `${escapedOpen}([^${escapedClose}]*)${escapedClose}` +
+            '(?!<br>)',
             'g'
           );
 
@@ -262,7 +307,7 @@
             const needNewlineBefore = !before.endsWith('<br>') && !before.endsWith('\n');
             let result = '';
             if (needNewlineBefore && before.length > 0) result += '<br>';
-            result += `${quote}${inside}${quote}<br>`;
+            result += `${open}${inside}${close}<br>`;
             return result;
           });
         });
