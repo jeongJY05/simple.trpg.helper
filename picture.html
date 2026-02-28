@@ -39,12 +39,17 @@
 </head>
 <body>
     <h1>사진 변환기</h1>
-
+     <a href="./index.html">문장 변환기</a>
+     <br><br>
     <section>
         <label for="inputText">사진 링크 입력 <textarea id="inputText"></textarea></label>
     </section>
-    <br>
-    <br>
+
+    <section>
+        <h3>desc 설정</h3>
+        <label><input type="radio" name="descOption" value="yes" checked> desc 있음</label>
+        <label><input type="radio" name="descOption" value="no"> desc 없음</label>
+    </section>
     <br>
     <div style="display: flex; justify-content: flex-end;">
       <button type="button" id="copy">복사하기</button>
@@ -63,6 +68,10 @@
       function tranformUrl() {
           const inputText = document.getElementById('inputText').value;
           let output = parseUrl(inputText);
+          const useDesc = document.querySelector('input[name="descOption"]:checked').value === 'yes';
+          if (useDesc && output) {
+              output = `/desc ${output}`;
+          }
           document.getElementById('output').innerHTML = output;
       }
 
